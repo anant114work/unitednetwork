@@ -1,6 +1,7 @@
 import requests
 import random
 import string
+import os
 from django.conf import settings
 from django.core.cache import cache
 import logging
@@ -77,8 +78,7 @@ class EduMarcSMSService:
             if (formatted_number in ['9999999999', '8888888888', '7777777777'] or 
                 self.is_restricted_env or 
                 getattr(settings, 'DEBUG', False)):
-                logger.info(f"Test mode - OTP: {otp} for {formatted_number} (DEBUG: {getattr(settings, 'DEBUG', False)}, SMS_TEST_MODE: {self.is_restricted_env}, ENV_DEBUG: {os.environ.get('DEBUG', 'not_set')}, ENV_SMS_TEST: {os.environ.get('SMS_TEST_MODE', 'not_set')})")
-                import os
+                logger.info(f"Test mode - OTP: {otp} for {formatted_number} (DEBUG: {getattr(settings, 'DEBUG', False)}, SMS_TEST_MODE: {self.is_restricted_env}, ENV_DEBUG: {os.environ.get('DEBUG', 'not_set')}, ENV_SMS_TEST: {os.environ.get('SMS_TEST_MODE', 'not_set')})"
                 return True, otp
             
             # Only try real SMS in production with SMS_TEST_MODE=False
@@ -141,4 +141,5 @@ class EduMarcSMSService:
             return False
 
 # Initialize service
+sms_service = EduMarcSMSService()
 sms_service = EduMarcSMSService()
