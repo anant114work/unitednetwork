@@ -49,6 +49,14 @@ class EduMarcSMSService:
             
             message = f"Your verification code is : {otp}\n\nRegards\nBOP REALTY"
             
+            # Debug what's triggering test mode
+            debug_val = getattr(settings, 'DEBUG', False)
+            sms_test_val = self.is_restricted_env
+            env_debug = os.environ.get('DEBUG', 'not_set')
+            env_sms_test = os.environ.get('SMS_TEST_MODE', 'not_set')
+            
+            logger.info(f"Debug values - DEBUG: {debug_val}, SMS_TEST_MODE: {sms_test_val}, ENV_DEBUG: {env_debug}, ENV_SMS_TEST: {env_sms_test}")
+            
             if (formatted_number in ['9999999999', '8888888888', '7777777777'] or 
                 self.is_restricted_env or 
                 getattr(settings, 'DEBUG', False)):
