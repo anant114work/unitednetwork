@@ -40,11 +40,16 @@ class EduMarcSMSService:
         else:
             formatted = clean_number[-10:]  # Take last 10 digits
         
-        # Validate Indian mobile number (should start with 6,7,8,9)
+        # Validate Indian mobile number (should be 10 digits and start with 6,7,8,9)
         if len(formatted) == 10 and formatted[0] in ['6', '7', '8', '9']:
             return formatted
+        elif len(formatted) < 10:
+            # Pad with leading zeros if too short
+            formatted = formatted.zfill(10)
+            logger.info(f"Padded short number {phone_number} to {formatted}")
+            return formatted
         else:
-            logger.warning(f"Invalid Indian mobile number format: {phone_number}")
+            logger.warning(f"Invalid Indian mobile number format: {phone_number} (length: {len(formatted)})")
             return formatted  # Return anyway but log warning
     
     def send_otp(self, phone_number, purpose="verification"):
@@ -71,8 +76,9 @@ class EduMarcSMSService:
             # Skip SMS for test numbers or restricted environments
             if (formatted_number in ['9999999999', '8888888888', '7777777777'] or 
                 self.is_restricted_env or 
-                getattr(settings, 'DEBUG', True)):
-                logger.info(f"Test mode - OTP: {otp} for {formatted_number}")
+                getattr(settings, 'DEBUG', False)):
+                logger.info(f"Test mode - OTP: {otp} for {formatted_number} (DEBUG: {getattr(settings, 'DEBUG', False)}, SMS_TEST_MODE: {self.is_restricted_env}, ENV_DEBUG: {os.environ.get('DEBUG', 'not_set')}, ENV_SMS_TEST: {os.environ.get('SMS_TEST_MODE', 'not_set')})")
+                import os
                 return True, otp
             
             # Only try real SMS in production with SMS_TEST_MODE=False
