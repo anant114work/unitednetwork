@@ -157,7 +157,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
 # SMS Configuration
-SMS_TEST_MODE = config('SMS_TEST_MODE', default=True, cast=bool)  # Set to False for production
+SMS_TEST_MODE = config('SMS_TEST_MODE', default=False, cast=bool)  # Set to False for production
 
 # Logging
 LOGGING = {
