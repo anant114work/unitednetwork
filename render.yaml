@@ -3,13 +3,17 @@ services:
     name: united-network-crm
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn united_network_crm.wsgi:application
+    startCommand: gunicorn united_network_crm.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: DEBUG
-        value: False
+        value: false
       - key: SECRET_KEY
         generateValue: true
       - key: SMS_TEST_MODE
-        value: False
+        value: false
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: DJANGO_SETTINGS_MODULE
+        value: united_network_crm.settings
