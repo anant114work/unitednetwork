@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}CP Registration - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    {% if not show_otp %}
+                        <!-- Step 1: Registration Form -->
+                        <div class="text-center mb-4">
+                            <i class="bi bi-person-plus display-4 text-primary"></i>
+                            <h3 class="mt-2">Channel Partner Registration</h3>
+                            <p class="text-muted">Join our network and start earning commissions</p>
+                        </div>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-phone me-1"></i>Phone Number
+                                </label>
+                                <input type="text" name="phone_number" class="form-control" placeholder="9876543210" required>
+                                <div class="form-text">Enter 10-digit mobile number (without +91)</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" name="company_name" class="form-control" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">PAN Number</label>
+                                    <input type="text" name="pan_number" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Bank Name</label>
+                                    <input type="text" name="bank_name" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Account Number</label>
+                                    <input type="text" name="account_number" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">IFSC Code</label>
+                                    <input type="text" name="ifsc_code" class="form-control" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea name="address" class="form-control" rows="3" required></textarea>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" name="send_otp" class="btn btn-primary">
+                                    <i class="bi bi-send me-1"></i>Send OTP & Register
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <!-- Step 2: OTP Verification -->
+                        <div class="text-center mb-4">
+                            <i class="bi bi-phone-vibrate text-success display-4"></i>
+                            <h4 class="mt-2 text-success">OTP Sent!</h4>
+                            <p class="text-muted">Enter the 6-digit OTP sent to<br><strong>{{ phone_number }}</strong></p>
+                        </div>
+                        
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="phone_number" value="{{ phone_number }}">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-center d-block">
+                                    <i class="bi bi-key me-1"></i>Enter OTP
+                                </label>
+                                <input type="text" name="otp" class="form-control text-center" placeholder="000000" maxlength="6" required style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" name="verify_otp" class="btn btn-success">
+                                    <i class="bi bi-check-circle me-1"></i>Verify & Complete Registration
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <a href="{% url 'cp_registration' %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-arrow-left me-1"></i>Back to Registration
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-2 text-muted">Already have an account?</p>
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Login
+                        </a>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <div class="alert alert-info">
+                            <small>
+                                <i class="bi bi-shield-check"></i> 
+                                <strong>Secure Registration:</strong> We verify your phone number with OTP for account security.
+                            </small>
+                        </div>
+                        <div class="alert alert-warning">
+                            <small>
+                                <strong>🧪 Test Numbers:</strong><br>
+                                Use <code>9999999999</code>, <code>8888888888</code>, or <code>7777777777</code><br>
+                                Test OTP: <code>123456</code>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

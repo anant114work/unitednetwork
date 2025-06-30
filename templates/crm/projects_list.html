@@ -1,0 +1,439 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Projects - United Network CRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 40px;
+    }
+    
+    .search-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        animation: slideInUp 0.6s ease-out;
+    }
+    
+    .project-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .project-image {
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+    
+    .project-card:hover .project-image {
+        transform: scale(1.05);
+    }
+    
+    .project-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        z-index: 2;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        animation: pulse 2s infinite;
+    }
+    
+    .filter-btn {
+        border-radius: 25px;
+        padding: 10px 20px;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .price-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+        100% {
+            background-position: 200% 0;
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+    
+    .project-card:nth-child(1) { animation-delay: 0.1s; }
+    .project-card:nth-child(2) { animation-delay: 0.2s; }
+    .project-card:nth-child(3) { animation-delay: 0.3s; }
+    .project-card:nth-child(4) { animation-delay: 0.4s; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Discover Premium Properties</h1>
+                <p class="lead mb-4">Explore our curated collection of premium real estate projects across prime locations</p>
+                <div class="stats-card d-inline-block mb-4">
+                    <h3 class="mb-1">{{ projects.paginator.count }}+</h3>
+                    <p class="mb-0">Active Projects</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- Advanced Search Card -->
+                <div class="search-card">
+                    <h4 class="mb-4 text-dark">Find Your Perfect Property</h4>
+                    <form method="get" class="row g-3">
+                        <div class="col-md-12">
+                            <input type="text" name="search" class="form-control form-control-lg" 
+                                   placeholder="Search by name, location, developer..." 
+                                   value="{{ search_params.search }}">
+                        </div>
+                        <div class="col-md-6">
+                            <select name="location" class="form-select form-select-lg">
+                                <option value="">All Locations</option>
+                                {% for location in locations %}
+                                    <option value="{{ location }}" {% if search_params.location == location %}selected{% endif %}>
+                                        {{ location }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="developer" class="form-select form-select-lg">
+                                <option value="">All Developers</option>
+                                {% for developer in developers %}
+                                    <option value="{{ developer }}" {% if search_params.developer == developer %}selected{% endif %}>
+                                        {{ developer }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="property_type" class="form-select form-select-lg">
+                                <option value="">Property Type</option>
+                                {% for type_code, type_name in property_types %}
+                                    <option value="{{ type_code }}" {% if search_params.property_type == type_code %}selected{% endif %}>
+                                        {{ type_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <select name="status" class="form-select form-select-lg">
+                                <option value="">All Status</option>
+                                {% for status_code, status_name in status_choices %}
+                                    <option value="{{ status_code }}" {% if search_params.status == status_code %}selected{% endif %}>
+                                        {{ status_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary btn-lg w-100 filter-btn">
+                                <i class="bi bi-search me-2"></i>Search Projects
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter and Sort Section -->
+<div class="container mb-4">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h3 class="mb-0">{{ projects.paginator.count }} Projects Found</h3>
+            <p class="text-muted">Showing {{ projects.start_index }}-{{ projects.end_index }} of {{ projects.paginator.count }} results</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="bi bi-sort-down me-2"></i>Sort By
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=name">Name A-Z</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=-name">Name Z-A</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=min_price">Price Low-High</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=-min_price">Price High-Low</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=-created_at">Newest First</a></li>
+                    <li><a class="dropdown-item" href="?{{ request.GET.urlencode }}&sort_by=created_at">Oldest First</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Projects Grid -->
+<div class="container">
+       
+        {% if projects %}
+    <div class="row g-4">
+        {% for project in projects %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card project-card h-100">
+                    <div class="position-relative">
+                        {% if project.image %}
+                            <img src="{{ project.image.url }}" class="card-img-top project-image" alt="{{ project.name }}">
+                        {% else %}
+                            <div class="card-img-top project-image bg-light d-flex align-items-center justify-content-center">
+                                <i class="bi bi-buildings display-4 text-muted"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Status Badge -->
+                        <span class="badge {{ project.status|badge_class }} project-badge">
+                            {{ project.get_status_display }}
+                        </span>
+                        
+                        {% if project.is_featured %}
+                            <span class="badge bg-warning project-badge" style="top: 50px;">
+                                <i class="bi bi-star-fill"></i> Featured
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">{{ project.name }}</h5>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-geo-alt me-1"></i>{{ project.location }}
+                        </p>
+                        <p class="text-muted mb-2">
+                            <i class="bi bi-person me-1"></i>{{ project.developer }}
+                        </p>
+                        <p class="card-text flex-grow-1">{{ project.description|truncatewords:15 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="price-badge">{{ project.price_range }}</span>
+                            <small class="text-muted">
+                                <i class="bi bi-eye me-1"></i>{{ project.view_count }} views
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'project_detail' project.id %}" class="btn btn-primary flex-grow-1">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'create_booking' %}?project={{ project.id }}" class="btn btn-outline-success">
+                                    <i class="bi bi-plus-circle"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h3 class="mt-3">No Projects Found</h3>
+                    <p class="text-muted">Try adjusting your search criteria or browse all projects</p>
+                    <a href="{% url 'projects_list' %}" class="btn btn-primary">View All Projects</a>
+                </div>
+            </div>
+        {% endfor %}
+         {% endif %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if projects.has_other_pages %}
+        <nav aria-label="Projects pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if projects.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ request.GET.urlencode }}&page=1">
+                            <i class="bi bi-chevron-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ projects.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+                
+                {% for num in projects.paginator.page_range %}
+                    {% if projects.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > projects.number|add:'-3' and num < projects.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if projects.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ projects.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ projects.paginator.num_pages }}">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+
+<!-- Quick Stats Section -->
+<div class="container mt-5 mb-5">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-center border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <i class="bi bi-buildings display-4 mb-3"></i>
+                    <h3>{{ projects.paginator.count }}</h3>
+                    <p class="mb-0">Total Projects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <i class="bi bi-geo-alt display-4 mb-3"></i>
+                    <h3>{{ locations|length }}</h3>
+                    <p class="mb-0">Locations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="card-body">
+                    <i class="bi bi-person display-4 mb-3"></i>
+                    <h3>{{ developers|length }}</h3>
+                    <p class="mb-0">Developers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                <div class="card-body">
+                    <i class="bi bi-check-circle display-4 mb-3"></i>
+                    <h3>{{ projects|length }}</h3>
+                    <p class="mb-0">Active Projects</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animationPlayState = 'running';
+            }
+        });
+    }, observerOptions);
+
+    // Observe all project cards
+    document.querySelectorAll('.project-card').forEach(card => {
+        card.style.animationPlayState = 'paused';
+        observer.observe(card);
+    });
+
+    // Add loading states for images
+    document.querySelectorAll('.project-image').forEach(img => {
+        if (img.tagName === 'IMG') {
+            img.addEventListener('load', function() {
+                this.style.opacity = '1';
+            });
+            img.style.opacity = '0';
+            img.style.transition = 'opacity 0.3s ease';
+        }
+    });
+
+    // Enhanced search functionality
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Searching...';
+        submitBtn.disabled = true;
+    });
+</script>
+{% endblock %}

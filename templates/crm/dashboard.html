@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Main Content - Full Width -->
+        <div class="col-12">
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Dashboard</h2>
+                    <span class="badge bg-primary">{{ user.get_user_type_display }}</span>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    {% if user.user_type in 'admin_l1,admin_l2,admin_l3' %}
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4>{{ total_bookings }}</h4>
+                                            <p class="mb-0">Total Bookings</p>
+                                        </div>
+                                        <i class="bi bi-clipboard-check display-6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4>{{ pending_approvals }}</h4>
+                                            <p class="mb-0">Pending Approvals</p>
+                                        </div>
+                                        <i class="bi bi-clock display-6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4>{{ total_cps }}</h4>
+                                            <p class="mb-0">Active CPs</p>
+                                        </div>
+                                        <i class="bi bi-people display-6"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4>{{ total_projects }}</h4>
+                                            <p class="mb-0">Active Projects</p>
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Bookings</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_bookings %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Booking ID</th>
+                                            <th>Project</th>
+                                            {% if user.user_type in 'admin_l1,admin_l2,admin_l3' %}
+                                                <th>Customer</th>
+                                            {% endif %}
+                                            <th>Status</th>
+                                            <th>Amount</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for booking in recent_bookings %}
+                                            <tr>
+                                                <td>{{ booking.booking_id }}</td>
+                                                <td>{{ booking.project.name }}</td>
+                                                {% if user.user_type in 'admin_l1,admin_l2,admin_l3' %}
+                                                    <td>{{ booking.customer_name }}</td>
+                                                {% endif %}
+                                                <td>
+                                                    <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                                </td>
+                                                <td>₹{{ booking.total_amount|floatformat:0 }}</td>
+                                                <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                                                <td>
+                                                    <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No recent bookings found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

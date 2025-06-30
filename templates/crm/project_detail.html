@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}{{ project.name }} - United Network CRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .project-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    
+    .project-image {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .collateral-card {
+        transition: transform 0.3s ease;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .collateral-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .commission-table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .info-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .amenity-item {
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .amenity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+    }
+    
+    .action-btn {
+        border-radius: 25px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Project Header -->
+<div class="project-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-3">{{ project.name }}</h1>
+                <p class="lead mb-3">
+                    <i class="bi bi-geo-alt me-2"></i>{{ project.location }}
+                </p>
+                <p class="mb-3">
+                    <i class="bi bi-person me-2"></i>{{ project.developer }}
+                </p>
+                <div class="d-flex gap-3 align-items-center">
+                    <span class="badge bg-light text-dark fs-6">{{ project.get_property_type_display }}</span>
+                    <span class="badge {% if project.status == 'active' %}bg-success{% else %}bg-secondary{% endif %} fs-6">{{ project.get_status_display }}</span>
+                    {% if project.is_featured %}
+                        <span class="badge bg-warning fs-6">Featured</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <h3 class="mb-2">{{ project.price_range }}</h3>
+                <small class="opacity-75">Price Range</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Project Image -->
+            {% if project.image %}
+                <img src="{{ project.image.url }}" class="img-fluid project-image mb-4" alt="{{ project.name }}">
+            {% else %}
+                <div class="bg-light d-flex align-items-center justify-content-center project-image mb-4" style="height: 300px;">
+                    <i class="bi bi-buildings display-1 text-muted"></i>
+                </div>
+            {% endif %}
+            
+            <!-- Description -->
+            <div class="card info-card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="bi bi-info-circle text-primary me-2"></i>About This Project
+                    </h4>
+                    <p class="card-text">{{ project.description }}</p>
+                    
+                    {% if project.amenities %}
+                        <h6 class="mt-4 mb-3">Amenities</h6>
+                        <div class="row">
+                            {% for amenity in project.amenities|split:"," %}
+                                <div class="col-md-6 amenity-item">
+                                    <i class="bi bi-check-circle text-success me-2"></i>{{ amenity|strip }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Commission Structure -->
+            {% if commission_slabs and user.is_authenticated %}
+                <div class="card info-card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-percent me-2"></i>Commission Structure
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover commission-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Amount Range</th>
+                                        <th>Commission %</th>
+                                        {% if system_settings.mlm_activated %}
+                                            <th>Level 1 %</th>
+                                            <th>Level 2 %</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for slab in commission_slabs %}
+                                        <tr>
+                                            <td>{{ slab.min_amount|currency }} - {{ slab.max_amount|currency }}</td>
+                                            <td><strong>{{ slab.commission_percentage|percentage }}</strong></td>
+                                            {% if system_settings.mlm_activated %}
+                                                <td>{{ slab.level_1_percentage|percentage }}</td>
+                                                <td>{{ slab.level_2_percentage|percentage }}</td>
+                                            {% endif %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Project Collaterals -->
+            {% if collaterals %}
+                <div class="card info-card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-file-earmark-text me-2"></i>Project Documents
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {% for collateral in collaterals %}
+                                <div class="col-md-6">
+                                    <div class="card collateral-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <h6 class="card-title">{{ collateral.title }}</h6>
+                                                    <p class="card-text small text-muted">{{ collateral.get_collateral_type_display }}</p>
+                                                    {% if collateral.description %}
+                                                        <p class="card-text small">{{ collateral.description|truncatewords:10 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="text-end">
+                                                    {% if user.is_authenticated and collateral.file %}
+                                                        <a href="{{ collateral.file.url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                            <i class="bi bi-download"></i>
+                                                        </a>
+                                                        <a href="{% url 'send_collateral_whatsapp' project.id collateral.id %}" class="btn btn-outline-success btn-sm">
+                                                            <i class="bi bi-whatsapp"></i>
+                                                        </a>
+                                                    {% elif not collateral.file %}
+                                                        <span class="badge bg-secondary">No File</span>
+                                                    {% else %}
+                                                        <span class="badge bg-secondary">Login Required</span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            {% if user.is_authenticated %}
+                <div class="card info-card mb-4">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">
+                            <i class="bi bi-lightning-charge me-2"></i>Quick Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'create_booking' %}?project={{ project.id }}" class="btn btn-primary action-btn">
+                                <i class="bi bi-plus-circle me-2"></i>Create Booking
+                            </a>
+                            {% if user.user_type in 'super_admin,admin_l1,admin_l2,admin_l3,rm,team_head' %}
+                                <a href="{% url 'edit_project' project.id %}" class="btn btn-outline-warning action-btn">
+                                    <i class="bi bi-pencil me-2"></i>Edit Project
+                                </a>
+                            {% endif %}
+                            {% if project.brochure %}
+                                <a href="{{ project.brochure.url }}" target="_blank" class="btn btn-outline-secondary action-btn">
+                                    <i class="bi bi-file-pdf me-2"></i>Download Brochure
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'projects_list' %}?location={{ project.location }}" class="btn btn-outline-info action-btn">
+                                <i class="bi bi-geo-alt me-2"></i>Similar Projects
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="card info-card mb-4">
+                    <div class="card-body text-center">
+                        <h5>Interested in this project?</h5>
+                        <p class="text-muted">Login to access booking features and commission details</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'login' %}" class="btn btn-primary action-btn">Login</a>
+                            <a href="{% url 'cp_registration' %}" class="btn btn-outline-primary action-btn">Register as Partner</a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Project Stats -->
+            <div class="stats-card mb-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-graph-up me-2"></i>Project Stats
+                </h5>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4>{{ project.view_count }}</h4>
+                        <small>Views</small>
+                    </div>
+                    <div class="col-6">
+                        <h4>{{ project.bookings.count }}</h4>
+                        <small>Bookings</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Bookings (Admin Only) -->
+            {% if recent_bookings and user.is_authenticated %}
+                <div class="card info-card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-clock-history me-2"></i>Recent Bookings
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% for booking in recent_bookings %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                <div>
+                                    <strong>{{ booking.booking_id }}</strong><br>
+                                    <small class="text-muted">{{ booking.cp.cp_code }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge {{ booking.status|badge_class }}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Similar Projects -->
+    {% if similar_projects %}
+        <div class="mt-5">
+            <h3 class="mb-4">Similar Projects in {{ project.location }}</h3>
+            <div class="row g-4">
+                {% for similar in similar_projects %}
+                    <div class="col-md-3">
+                        <div class="card">
+                            {% if similar.image %}
+                                <img src="{{ similar.image.url }}" class="card-img-top" style="height: 150px; object-fit: cover;" alt="{{ similar.name }}">
+                            {% else %}
+                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                    <i class="bi bi-buildings text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h6 class="card-title">{{ similar.name|truncatechars:30 }}</h6>
+                                <p class="card-text small text-muted">{{ similar.developer }}</p>
+                                <p class="card-text small text-primary">{{ similar.price_range }}</p>
+                                <a href="{% url 'project_detail' similar.id %}" class="btn btn-sm btn-outline-primary w-100">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

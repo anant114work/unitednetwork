@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+
+{% block title %}Team Dashboard - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Main Content - Full Width -->
+        <div class="col-12">
+            <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2>Team Dashboard</h2>
+                        <p class="text-muted mb-0">{{ user.get_user_type_display }} - {{ user.get_full_name }}</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-primary">{{ user.get_user_type_display }}</span>
+                        <a href="{% url 'create_booking' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle"></i> New Booking
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4>{{ total_bookings }}</h4>
+                                        <p class="mb-0">Team Bookings</p>
+                                        <small class="text-light">This month: {{ this_month_bookings }}</small>
+                                    </div>
+                                    <i class="bi bi-clipboard-check display-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4>₹{{ total_sales|floatformat:0 }}</h4>
+                                        <p class="mb-0">Team Sales</p>
+                                    </div>
+                                    <i class="bi bi-currency-rupee display-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4>{{ pending_bookings }}</h4>
+                                        <p class="mb-0">Pending Review</p>
+                                    </div>
+                                    <i class="bi bi-clock display-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <div class="card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <h4>{{ team_members.count }}</h4>
+                                        <p class="mb-0">Team Members</p>
+                                    </div>
+                                    <i class="bi bi-people display-6"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Quick Actions</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-2">
+                                        <a href="{% url 'create_booking' %}" class="btn btn-outline-primary w-100">
+                                            <i class="bi bi-plus-circle"></i> Create Booking
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="{% url 'bookings_list' %}?status=requested" class="btn btn-outline-warning w-100">
+                                            <i class="bi bi-clock"></i> Review Bookings
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="{% url 'leaderboard' %}" class="btn btn-outline-success w-100">
+                                            <i class="bi bi-trophy"></i> Team Performance
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-2">
+                                        <a href="{% url 'projects_list' %}" class="btn btn-outline-info w-100">
+                                            <i class="bi bi-buildings"></i> Browse Projects
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Recent Bookings -->
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Recent Team Bookings</h5>
+                                <a href="{% url 'bookings_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                            </div>
+                            <div class="card-body">
+                                {% if recent_bookings %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Booking ID</th>
+                                                    <th>Project</th>
+                                                    <th>CP</th>
+                                                    <th>Status</th>
+                                                    <th>Amount</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for booking in recent_bookings %}
+                                                    <tr>
+                                                        <td>{{ booking.booking_id }}</td>
+                                                        <td>{{ booking.project.name|truncatechars:20 }}</td>
+                                                        <td>{{ booking.cp.cp_code }}</td>
+                                                        <td>
+                                                            {% if booking.status == 'requested' %}
+                                                                <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                                                            {% elif booking.status == 'approved' %}
+                                                                <span class="badge bg-success">{{ booking.get_status_display }}</span>
+                                                            {% elif booking.status == 'rejected' %}
+                                                                <span class="badge bg-danger">{{ booking.get_status_display }}</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>₹{{ booking.total_amount|floatformat:0 }}</td>
+                                                        <td>
+                                                            <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No recent bookings found.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Members -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Team Members</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if team_members %}
+                                    {% for member in team_members %}
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div>
+                                                <strong>{{ member.get_full_name }}</strong><br>
+                                                <small class="text-muted">{{ member.get_user_type_display }}</small>
+                                            </div>
+                                            <span class="badge bg-primary">{{ member.phone_number }}</span>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <p class="text-muted">No team members assigned.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

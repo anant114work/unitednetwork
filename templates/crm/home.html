@@ -1,0 +1,349 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}United Network CRM - Real Estate Solutions{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="rgba(255,255,255,0.1)"><polygon points="1000,100 1000,0 0,100"/></svg>');
+        background-size: cover;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .feature-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 20px;
+    }
+    
+    .project-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+    }
+    
+    .project-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+    
+    .stats-section {
+        background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 60px 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .search-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-top: -50px;
+        position: relative;
+        z-index: 3;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .section-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Transform Your Real Estate Business
+                </h1>
+                <p class="lead mb-4">
+                    Join United Network's comprehensive CRM platform designed for real estate professionals. 
+                    Manage projects, track commissions, and grow your network with our advanced MLM system.
+                </p>
+                <div class="d-flex gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'cp_registration' %}" class="btn btn-light btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Join as Partner
+                        </a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- 🔽 New Column for Animation -->
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                <lottie-player 
+                    src="https://assets1.lottiefiles.com/packages/lf20_tfb3estd.json"  
+                    background="transparent"  
+                    speed="1"  
+                    style="width: 100%; height: 350px;"  
+                    loop autoplay>
+                </lottie-player>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Search Section -->
+<div class="container">
+    <div class="search-form">
+         <div class="text-center mb-5">
+            <h2 class="section-title">Find your Perfect Property</h2>
+        </div>
+        <form method="GET" action="{% url 'projects_list' %}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <input type="text" class="form-control" name="search" placeholder="Search projects..." value="{{ search_params.search }}">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="location">
+                        <option value="">All Locations</option>
+                        {% for location in locations %}
+                            <option value="{{ location }}" {% if search_params.location == location %}selected{% endif %}>
+                                {{ location }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select" name="property_type">
+                        <option value="">Property Type</option>
+                        {% for type_code, type_name in property_types %}
+                            <option value="{{ type_code }}" {% if search_params.property_type == type_code %}selected{% endif %}>
+                                {{ type_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="min_price" placeholder="Min Price" value="{{ search_params.min_price }}">
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="max_price" placeholder="Max Price" value="{{ search_params.max_price }}">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Why Choose United Network?</h2>
+            <p class="lead text-muted">Comprehensive solutions for real estate professionals</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-primary text-white">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h5 class="card-title">Advanced Analytics</h5>
+                        <p class="card-text">Track your performance with detailed analytics and insights. Monitor sales, commissions, and team performance in real-time.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-success text-white">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h5 class="card-title">MLM Network</h5>
+                        <p class="card-text">Build and manage your network with our advanced MLM system. Create VPs, track multi-level commissions, and grow your business.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card text-center">
+                    <div class="card-body p-4">
+                        <div class="feature-icon bg-warning text-white">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h5 class="card-title">Secure & Reliable</h5>
+                        <p class="card-text">Your data is protected with enterprise-grade security. Reliable platform with 99.9% uptime guarantee.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Projects -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Featured Projects</h2>
+            <p class="lead text-muted">Discover premium real estate opportunities</p>
+        </div>
+        
+        {% if projects %}
+            <div class="row g-4">
+                {% for project in projects %}
+                    <div class="col-md-4">
+                        <div class="card project-card">
+                            {% if project.image %}
+                                <img src="{{ project.image.url }}" class="project-image" alt="{{ project.name }}">
+                            {% else %}
+                                <div class="project-image bg-light d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-buildings display-4 text-muted"></i>
+                                </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ project.name }}</h5>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ project.location }}
+                                </p>
+                                <p class="text-muted mb-2">
+                                    <i class="bi bi-person me-1"></i>{{ project.developer }}
+                                </p>
+                                <h6 class="text-primary mb-3">{{ project.price_range }}</h6>
+                                <p class="card-text">{{ project.description|truncatewords:15 }}</p>
+                                <a href="{% url 'project_detail' project.id %}" class="btn btn-primary w-100">
+                                    View Details <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'projects_list' %}" class="btn btn-outline-primary btn-lg">
+                    View All Projects <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-buildings display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No projects available</h4>
+                <p class="text-muted">Check back later for new projects.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="container text-center text-white">
+        <h2 class="mb-4">Ready to Get Started?</h2>
+        <p class="lead mb-4">Join thousands of real estate professionals who trust United Network</p>
+        {% if not user.is_authenticated %}
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'cp_registration' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Register as Partner
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                </a>
+            </div>
+        {% else %}
+            <a href="{% url 'dashboard' %}" class="btn btn-light btn-lg">
+                <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+            </a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

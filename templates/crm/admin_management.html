@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Management - United Network CRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .management-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .management-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .admin-badge {
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    }
+    
+    .rm-badge {
+        background: linear-gradient(45deg, #4834d4, #686de0);
+    }
+    
+    .action-btn {
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="p-3">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-1">
+                            <i class="fas fa-users-cog text-primary me-2"></i>Admin Management
+                        </h2>
+                        <p class="text-muted mb-0">Manage system administrators and team members</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        {% if can_create_admin %}
+                            <a href="{% url 'create_admin' %}" class="btn btn-danger">
+                                <i class="fas fa-user-shield me-1"></i> Create Admin
+                            </a>
+                        {% endif %}
+                        {% if can_create_rm %}
+                            <a href="{% url 'create_rm' %}" class="btn btn-primary">
+                                <i class="fas fa-user-tie me-1"></i> Create RM/TL
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3">
+                        <div class="card management-card bg-danger text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1">{{ admin_users.count }}</h3>
+                                        <p class="mb-0">Admin Users</p>
+                                    </div>
+                                    <i class="fas fa-user-shield" style="font-size: 2rem; opacity: 0.8;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card management-card bg-primary text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1">{{ rm_users.count }}</h3>
+                                        <p class="mb-0">RM & Team Leaders</p>
+                                    </div>
+                                    <i class="fas fa-user-tie" style="font-size: 2rem; opacity: 0.8;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card management-card bg-success text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1">{{ admin_users.count|add:rm_users.count }}</h3>
+                                        <p class="mb-0">Total Internal Users</p>
+                                    </div>
+                                    <i class="fas fa-users" style="font-size: 2rem; opacity: 0.8;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card management-card bg-info text-white">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h3 class="mb-1">Active</h3>
+                                        <p class="mb-0">System Status</p>
+                                    </div>
+                                    <i class="fas fa-check-circle" style="font-size: 2rem; opacity: 0.8;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Admin Users -->
+                    <div class="col-md-6">
+                        <div class="card management-card">
+                            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-shield me-2"></i>Admin Users
+                                </h5>
+                                {% if can_create_admin %}
+                                    <a href="{% url 'create_admin' %}" class="btn btn-light btn-sm">
+                                        <i class="fas fa-plus me-1"></i> Add Admin
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                {% if admin_users %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>User</th>
+                                                    <th>Role</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for admin in admin_users %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="user-avatar admin-badge me-3">
+                                                                    {{ admin.first_name|first|upper }}{{ admin.last_name|first|upper }}
+                                                                </div>
+                                                                <div>
+                                                                    <strong>{{ admin.get_full_name }}</strong><br>
+                                                                    <small class="text-muted">{{ admin.phone_number }}</small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-danger">{{ admin.get_user_type_display }}</span>
+                                                        </td>
+                                                        <td>
+                                                            {% if admin.is_active %}
+                                                                <span class="badge bg-success">Active</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Inactive</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'edit_user' admin.id %}" class="btn btn-sm btn-outline-primary action-btn">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-user-shield display-4 text-muted"></i>
+                                        <p class="text-muted mt-2">No admin users found.</p>
+                                        {% if can_create_admin %}
+                                            <a href="{% url 'create_admin' %}" class="btn btn-danger">Create First Admin</a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RM & Team Leaders -->
+                    <div class="col-md-6">
+                        <div class="card management-card">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-user-tie me-2"></i>RM & Team Leaders
+                                </h5>
+                                {% if can_create_rm %}
+                                    <a href="{% url 'create_rm' %}" class="btn btn-light btn-sm">
+                                        <i class="fas fa-plus me-1"></i> Add RM/TL
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                {% if rm_users %}
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>User</th>
+                                                    <th>Role</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for rm in rm_users %}
+                                                    <tr>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="user-avatar rm-badge me-3">
+                                                                    {{ rm.first_name|first|upper }}{{ rm.last_name|first|upper }}
+                                                                </div>
+                                                                <div>
+                                                                    <strong>{{ rm.get_full_name }}</strong><br>
+                                                                    <small class="text-muted">{{ rm.phone_number }}</small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-primary">{{ rm.get_user_type_display }}</span>
+                                                        </td>
+                                                        <td>
+                                                            {% if rm.is_active %}
+                                                                <span class="badge bg-success">Active</span>
+                                                            {% else %}
+                                                                <span class="badge bg-secondary">Inactive</span>
+                                                            {% endif %}
+                                                        </td>
+                                                        <td>
+                                                            <a href="{% url 'edit_user' rm.id %}" class="btn btn-sm btn-outline-primary action-btn">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-user-tie display-4 text-muted"></i>
+                                        <p class="text-muted mt-2">No RM/TL users found.</p>
+                                        {% if can_create_rm %}
+                                            <a href="{% url 'create_rm' %}" class="btn btn-primary">Create First RM</a>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card management-card mt-4">
+                    <div class="card-header bg-transparent border-0">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bolt text-warning me-2"></i>Quick Management Actions
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <a href="{% url 'user_management' %}" class="btn btn-outline-info w-100 action-btn">
+                                    <i class="fas fa-users d-block mb-2" style="font-size: 1.5rem;"></i>
+                                    All Users
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'project_management' %}" class="btn btn-outline-success w-100 action-btn">
+                                    <i class="fas fa-building d-block mb-2" style="font-size: 1.5rem;"></i>
+                                    Manage Projects
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'bookings_list' %}" class="btn btn-outline-warning w-100 action-btn">
+                                    <i class="fas fa-clipboard-list d-block mb-2" style="font-size: 1.5rem;"></i>
+                                    All Bookings
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{% url 'dashboard' %}" class="btn btn-outline-primary w-100 action-btn">
+                                    <i class="fas fa-tachometer-alt d-block mb-2" style="font-size: 1.5rem;"></i>
+                                    Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,490 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Project - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-1 text-teal">✏️ Edit Project</h2>
+                    <p class="text-muted mb-0">Update project information and settings</p>
+                </div>
+                <div>
+                    <a href="{% url 'project_management' %}" class="btn btn-soft-gray">
+                        <i class="fas fa-arrow-left"></i> Back to Projects
+                    </a>
+                </div>
+            </div>
+
+            <!-- Edit Project Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-soft-orange">
+                    <h5 class="card-title mb-0 text-dark">
+                        <i class="fas fa-edit"></i> Project Information - {{ project.name }}
+                        <span class="badge bg-soft-teal text-dark ms-2">{{ project.code }}</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-4">
+                            <!-- Basic Information -->
+                            <div class="col-12">
+                                <h6 class="text-ocean border-bottom pb-2 mb-3">
+                                    <i class="fas fa-info-circle"></i> Basic Information
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_name" class="form-label required">Project Name</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Enter the full project name</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_developer" class="form-label required">Developer</label>
+                                {{ form.developer }}
+                                {% if form.developer.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.developer.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Name of the development company</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_location" class="form-label required">Location</label>
+                                {{ form.location }}
+                                {% if form.location.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.location.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">City/Area where project is located</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_property_type" class="form-label required">Property Type</label>
+                                {{ form.property_type }}
+                                {% if form.property_type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.property_type.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Type of property development</div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="id_description" class="form-label required">Description</label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.description.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Detailed description of the project</div>
+                            </div>
+                            
+                            <!-- Pricing Information -->
+                            <div class="col-12">
+                                <h6 class="text-ocean border-bottom pb-2 mb-3 mt-3">
+                                    <i class="fas fa-rupee-sign"></i> Pricing Information
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="id_price_range" class="form-label required">Price Range (Display)</label>
+                                {{ form.price_range }}
+                                {% if form.price_range.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.price_range.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">e.g., "₹50L - ₹2Cr"</div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="id_min_price" class="form-label">Minimum Price (₹ Lakhs)</label>
+                                {{ form.min_price }}
+                                {% if form.min_price.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.min_price.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Starting price in lakhs</div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label for="id_max_price" class="form-label">Maximum Price (₹ Lakhs)</label>
+                                {{ form.max_price }}
+                                {% if form.max_price.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.max_price.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Maximum price in lakhs</div>
+                            </div>
+                            
+                            <!-- Project Status & Features -->
+                            <div class="col-12">
+                                <h6 class="text-ocean border-bottom pb-2 mb-3 mt-3">
+                                    <i class="fas fa-cog"></i> Status & Features
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_status" class="form-label required">Project Status</label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.status.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Current status of the project</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_is_featured" class="form-label">Featured Project</label>
+                                <div class="form-check form-switch mt-2">
+                                    {{ form.is_featured }}
+                                    <label class="form-check-label" for="id_is_featured">
+                                        Mark as featured project
+                                    </label>
+                                </div>
+                                <div class="form-text">Featured projects appear prominently on homepage</div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="id_amenities" class="form-label">Amenities</label>
+                                {{ form.amenities }}
+                                {% if form.amenities.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.amenities.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">List amenities separated by commas (e.g., Swimming Pool, Gym, Garden, Security)</div>
+                            </div>
+                            
+                            <!-- Media Files -->
+                            <div class="col-12">
+                                <h6 class="text-ocean border-bottom pb-2 mb-3 mt-3">
+                                    <i class="fas fa-images"></i> Media & Documents
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_image" class="form-label">Project Image</label>
+                                {% if project.image %}
+                                    <div class="current-file mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-check-circle"></i> Current: {{ project.image.name|slice:"17:" }}
+                                        </small>
+                                        <div class="mt-1">
+                                            <img src="{{ project.image.url }}" alt="{{ project.name }}" class="current-image">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {{ form.image }}
+                                {% if form.image.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.image.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Upload new project image to replace current one (JPG, PNG, WebP)</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="id_brochure" class="form-label">Project Brochure</label>
+                                {% if project.brochure %}
+                                    <div class="current-file mb-2">
+                                        <small class="text-success">
+                                            <i class="fas fa-file-pdf"></i> Current: {{ project.brochure.name|slice:"11:" }}
+                                        </small>
+                                        <div class="mt-1">
+                                            <a href="{{ project.brochure.url }}" target="_blank" class="btn btn-sm btn-soft-blue">
+                                                <i class="fas fa-download"></i> View Current Brochure
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                {{ form.brochure }}
+                                {% if form.brochure.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.brochure.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Upload new brochure to replace current one (PDF, DOC, DOCX)</div>
+                            </div>
+                            
+                            <!-- Project Statistics -->
+                            <div class="col-12">
+                                <h6 class="text-ocean border-bottom pb-2 mb-3 mt-3">
+                                    <i class="fas fa-chart-bar"></i> Project Statistics
+                                </h6>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label class="form-label">Total Views</label>
+                                <div class="form-control-plaintext bg-soft-blue text-dark fw-bold">
+                                    {{ project.view_count }} views
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label class="form-label">Created Date</label>
+                                <div class="form-control-plaintext">
+                                    {{ project.created_at|date:"M d, Y" }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label class="form-label">Last Updated</label>
+                                <div class="form-control-plaintext">
+                                    {{ project.updated_at|date:"M d, Y H:i" }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label class="form-label">Project Code</label>
+                                <div class="form-control-plaintext">
+                                    <span class="badge bg-soft-teal text-dark">{{ project.code }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Form Errors -->
+                            {% if form.non_field_errors %}
+                                <div class="col-12">
+                                    <div class="alert alert-soft-red" role="alert">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        {% for error in form.non_field_errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{% url 'project_management' %}" class="btn btn-soft-gray">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </a>
+                                    <button type="submit" class="btn btn-soft-orange">
+                                        <i class="fas fa-save"></i> Update Project
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Warning Messages -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header bg-soft-gray">
+                    <h6 class="card-title mb-0 text-dark">
+                        <i class="fas fa-exclamation-triangle text-orange"></i> Important Notes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">📋 <strong>Project Code ({{ project.code }})</strong> cannot be changed - it's a permanent identifier</li>
+                        <li class="mb-2">🖼️ <strong>Uploading new files</strong> will replace the existing ones permanently</li>
+                        <li class="mb-2">📊 <strong>Changing project status</strong> affects visibility to channel partners and customers</li>
+                        <li class="mb-2">⭐ <strong>Featured status</strong> determines homepage prominence and search priority</li>
+                        <li class="mb-2">💰 <strong>Price changes</strong> may affect existing bookings and commission calculations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Eye-friendly color palette */
+:root {
+    --teal: #20B2AA;
+    --soft-teal: #E0F2F1;
+    --ocean: #006064;
+    --soft-ocean: #E0F7FA;
+    --forest: #2E7D32;
+    --soft-green: #E8F5E8;
+    --purple: #7B1FA2;
+    --soft-purple: #F3E5F5;
+    --blue: #1976D2;
+    --soft-blue: #E3F2FD;
+    --orange: #F57C00;
+    --soft-orange: #FFF3E0;
+    --red: #D32F2F;
+    --soft-red: #FFEBEE;
+    --gray: #616161;
+    --soft-gray: #F5F5F5;
+}
+
+.text-teal { color: var(--teal) !important; }
+.text-ocean { color: var(--ocean) !important; }
+.text-forest { color: var(--forest) !important; }
+.text-purple { color: var(--purple) !important; }
+.text-orange { color: var(--orange) !important; }
+.text-gray { color: var(--gray) !important; }
+
+.bg-soft-teal { background-color: var(--soft-teal) !important; }
+.bg-soft-blue { background-color: var(--soft-blue) !important; }
+.bg-soft-orange { background-color: var(--soft-orange) !important; }
+.bg-soft-gray { background-color: var(--soft-gray) !important; }
+
+.btn-soft-orange {
+    background-color: var(--soft-orange);
+    border-color: var(--orange);
+    color: var(--orange);
+}
+.btn-soft-orange:hover {
+    background-color: var(--orange);
+    border-color: var(--orange);
+    color: white;
+}
+
+.btn-soft-blue {
+    background-color: var(--soft-blue);
+    border-color: var(--blue);
+    color: var(--blue);
+}
+.btn-soft-blue:hover {
+    background-color: var(--blue);
+    border-color: var(--blue);
+    color: white;
+}
+
+.btn-soft-gray {
+    background-color: var(--soft-gray);
+    border-color: var(--gray);
+    color: var(--gray);
+}
+.btn-soft-gray:hover {
+    background-color: var(--gray);
+    border-color: var(--gray);
+    color: white;
+}
+
+.alert-soft-red {
+    background-color: var(--soft-red);
+    border-color: var(--red);
+    color: var(--red);
+}
+
+.required::after {
+    content: " *";
+    color: var(--red);
+}
+
+.form-control:invalid {
+    border-color: var(--red);
+}
+
+.form-control:valid {
+    border-color: var(--teal);
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(0,0,0,.05);
+}
+
+.border-bottom {
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.form-check-input:checked {
+    background-color: var(--teal);
+    border-color: var(--teal);
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 0.875em;
+}
+
+.form-control-plaintext {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+}
+
+.current-image {
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--soft-teal);
+}
+
+.current-file {
+    padding: 0.5rem;
+    background-color: var(--soft-gray);
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-format price inputs
+    const minPriceInput = document.getElementById('id_min_price');
+    const maxPriceInput = document.getElementById('id_max_price');
+    
+    function formatPriceInput(input) {
+        input.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d.]/g, '');
+            if (value) {
+                e.target.value = value;
+            }
+        });
+    }
+    
+    if (minPriceInput) formatPriceInput(minPriceInput);
+    if (maxPriceInput) formatPriceInput(maxPriceInput);
+    
+    // File upload preview
+    const imageInput = document.getElementById('id_image');
+    const brochureInput = document.getElementById('id_brochure');
+    
+    function showFileInfo(input, type) {
+        input.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const fileInfo = document.createElement('small');
+                fileInfo.className = 'text-warning d-block mt-1';
+                fileInfo.innerHTML = `<i class="fas fa-upload"></i> New file selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB) - Will replace current file`;
+                
+                // Remove existing new file info
+                const existing = input.parentNode.querySelector('.text-warning');
+                if (existing) existing.remove();
+                
+                input.parentNode.appendChild(fileInfo);
+            }
+        });
+    }
+    
+    if (imageInput) showFileInfo(imageInput, 'image');
+    if (brochureInput) showFileInfo(brochureInput, 'document');
+});
+</script>
+{% endblock %}

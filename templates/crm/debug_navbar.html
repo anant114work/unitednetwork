@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}🔍 NAVBAR DEBUG TEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    .debug-info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>🔍 Navbar Debug Test</h3>
+                </div>
+                <div class="card-body">
+                    <h5>Current User Info:</h5>
+                    <ul>
+                        <li><strong>User:</strong> {{ user }}</li>
+                        <li><strong>Is Authenticated:</strong> {{ user.is_authenticated }}</li>
+                        <li><strong>User Type:</strong> {{ user.user_type|default:"Not set" }}</li>
+                        <li><strong>Full Name:</strong> {{ user.get_full_name|default:"Not set" }}</li>
+                    </ul>
+                    
+                    <h5>Template Debug:</h5>
+                    <ul>
+                        <li><strong>Template extends base.html:</strong> ✅ Yes</li>
+                        <li><strong>Bootstrap loaded:</strong> Check if buttons below are styled</li>
+                        <li><strong>Base template navbar should be visible above</strong></li>
+                    </ul>
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-primary">Bootstrap Primary Button</button>
+                        <button class="btn btn-success">Bootstrap Success Button</button>
+                        <button class="btn btn-warning">Bootstrap Warning Button</button>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <strong>Instructions:</strong>
+                        <ol>
+                            <li>If you can see a navbar at the top with "United Network CRM" logo - the navbar is working!</li>
+                            <li>If the buttons above are styled with colors - Bootstrap is loading</li>
+                            <li>If you see this page but no navbar, there might be a CSS/JS loading issue</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Browser Developer Tools Test:</strong><br>
+                        Press F12 and check the Console tab for any JavaScript errors.<br>
+                        Check the Network tab to see if Bootstrap CSS/JS files are loading properly.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Test if Bootstrap JS is working
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('✅ Page loaded successfully');
+        console.log('✅ Bootstrap test: If you see styled buttons, Bootstrap CSS is working');
+        
+        // Test Bootstrap JS
+        if (typeof bootstrap !== 'undefined') {
+            console.log('✅ Bootstrap JS is loaded');
+        } else {
+            console.log('❌ Bootstrap JS is NOT loaded');
+        }
+        
+        // Check if navbar exists
+        const navbar = document.querySelector('.navbar');
+        if (navbar) {
+            console.log('✅ Navbar element found in DOM');
+            console.log('Navbar classes:', navbar.className);
+        } else {
+            console.log('❌ Navbar element NOT found in DOM');
+        }
+        
+        // Check if user avatar exists
+        const userAvatar = document.querySelector('.user-avatar');
+        if (userAvatar) {
+            console.log('✅ User avatar found in navbar');
+        } else {
+            console.log('❌ User avatar NOT found in navbar');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i> Settings
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <h5>Notification Preferences</h5>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="email_notifications" name="email_notifications" {% if user.email_notifications %}checked{% endif %}>
+                            <label class="form-check-label" for="email_notifications">
+                                Email Notifications
+                            </label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sms_notifications" name="sms_notifications" {% if user.sms_notifications %}checked{% endif %}>
+                            <label class="form-check-label" for="sms_notifications">
+                                SMS Notifications
+                            </label>
+                        </div>
+                        
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="whatsapp_notifications" name="whatsapp_notifications" {% if user.whatsapp_notifications %}checked{% endif %}>
+                            <label class="form-check-label" for="whatsapp_notifications">
+                                WhatsApp Notifications
+                            </label>
+                        </div>
+                        
+                        <hr>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

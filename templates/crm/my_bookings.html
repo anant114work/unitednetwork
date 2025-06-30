@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}My Bookings - United Network CRM{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="bi bi-clipboard-check text-primary me-2"></i>My Bookings
+                    </h2>
+                    <p class="text-muted mb-0">Track all your booking submissions</p>
+                </div>
+                <div>
+                    <a href="{% url 'create_booking' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>New Booking
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Total Bookings</h6>
+                            <h3 class="mb-0">{{ total_bookings }}</h3>
+                        </div>
+                        <i class="bi bi-clipboard-check fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Total Amount</h6>
+                            <h3 class="mb-0">₹{{ total_amount|floatformat:0|add_commas }}</h3>
+                        </div>
+                        <i class="bi bi-currency-rupee fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">Commission</h6>
+                            <h3 class="mb-0">₹{{ total_commission|floatformat:0|add_commas }}</h3>
+                        </div>
+                        <i class="bi bi-percent fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="card-title">CP Code</h6>
+                            <h3 class="mb-0">{{ cp.cp_code }}</h3>
+                        </div>
+                        <i class="bi bi-person-badge fs-1 opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if search_params.status == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Project</label>
+                            <select name="project" class="form-select">
+                                <option value="">All Projects</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}" {% if search_params.project == project.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ project.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">From Date</label>
+                            <input type="date" name="date_from" class="form-control" value="{{ search_params.date_from }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">To Date</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ search_params.date_to }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-1"></i>Filter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    {% if bookings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Booking ID</th>
+                                        <th>Project</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Commission</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for booking in bookings %}
+                                        <tr>
+                                            <td>
+                                                <strong class="text-primary">{{ booking.booking_id }}</strong>
+                                            </td>
+                                            <td>{{ booking.project.name }}</td>
+                                            <td>{{ booking.customer_name }}</td>
+                                            <td>₹{{ booking.total_amount|floatformat:0|add_commas }}</td>
+                                            <td>₹{{ booking.commission_amount|floatformat:0|add_commas }}</td>
+                                            <td>
+                                                {% if booking.status == 'requested' %}
+                                                    <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                                                {% elif booking.status == 'approved' %}
+                                                    <span class="badge bg-success">{{ booking.get_status_display }}</span>
+                                                {% elif booking.status == 'rejected' %}
+                                                    <span class="badge bg-danger">{{ booking.get_status_display }}</span>
+                                                {% elif booking.status == 'completed' %}
+                                                    <span class="badge bg-primary">{{ booking.get_status_display }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ booking.created_at|date:"d M Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'booking_detail' booking.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-clipboard-x text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="mt-3 text-muted">No Bookings Found</h4>
+                            <p class="text-muted">You haven't created any bookings yet.</p>
+                            <a href="{% url 'create_booking' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle me-2"></i>Create Your First Booking
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="row mt-4">
+            <div class="col-12">
+                <nav aria-label="Bookings pagination">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% for key, value in search_params.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in search_params.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Previous</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% for key, value in search_params.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in search_params.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in search_params.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Last</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}United Network CRM{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        /* Force navbar to be visible and override any conflicts */
+        body {
+            padding-top: 76px !important; /* Account for fixed navbar */
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,.1) !important;
+            background-color: #ffffff !important;
+            border-bottom: 1px solid #e9ecef !important;
+            z-index: 9999 !important; /* Increased z-index to override conflicts */
+            min-height: 76px !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            display: block !important;
+            visibility: visible !important;
+        }
+
+.navbar-brand {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #667eea !important;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.navbar-brand:hover {
+    color: #764ba2 !important;
+}
+
+.navbar-nav .nav-link {
+    color: #495057 !important;
+    font-weight: 500;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #667eea !important;
+    background-color: rgba(102, 126, 234, 0.1);
+    border-radius: 0.375rem;
+}
+
+.navbar-nav .nav-link.active {
+    color: #667eea !important;
+    background-color: rgba(102, 126, 234, 0.15);
+    border-radius: 0.375rem;
+}
+
+.dropdown-menu {
+    border: none !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    border-radius: 0.5rem !important;
+    margin-top: 0.5rem !important;
+    z-index: 10000 !important;
+    position: absolute !important;
+    display: none !important;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.navbar-collapse {
+    z-index: 9998 !important;
+}
+
+.navbar-nav {
+    z-index: 9997 !important;
+}
+
+.nav-item.dropdown {
+    position: relative !important;
+}
+
+/* Debug styles to force visibility */
+.navbar * {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.dropdown-item {
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-nav {
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+        margin-top: 1rem;
+    }
+    
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem !important;
+        border-radius: 0.375rem;
+        margin: 0.25rem 0;
+    }
+}
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .notification-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 15px;
+            transition: background-color 0.2s;
+        }
+        
+        .notification-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .notification-item.unread {
+            background-color: #e3f2fd;
+        }
+        
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        .btn {
+            border-radius: 0.375rem;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Top Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+        <div class="container-fluid">
+           <a class="navbar-brand" href="{% url 'home' %}">
+    <i class="bi bi-buildings me-2"></i>
+    <span>United Network</span>
+</a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'projects_list' %}">
+                            <i class="bi bi-buildings"></i> Projects
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-clipboard-check"></i> Bookings
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'bookings_list' %}">
+                                    <i class="bi bi-list-check"></i> View All Bookings
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'create_booking' %}">
+                                    <i class="bi bi-plus-circle"></i> Create New Booking
+                                </a></li>
+                                {% if user.user_type in 'admin_l1,admin_l2,admin_l3' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{% url 'bookings_list' %}?status=requested">
+                                        <i class="bi bi-clock"></i> Pending Approvals
+                                    </a></li>
+                                {% endif %}
+                            </ul>
+                        </li>
+                        {% if user.user_type not in 'cp,vp' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'leaderboard' %}">
+                                    <i class="bi bi-trophy"></i> Leaderboard
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <!-- Notifications -->
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" id="notificationDropdown">
+                                <i class="bi bi-bell"></i>
+                                <span class="notification-badge" id="notificationCount" style="display: none;">0</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                                <div class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <span>Notifications</span>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="markAllAsRead()">Mark All Read</button>
+                                </div>
+                                <div id="notificationList">
+                                    <div class="text-center p-3">
+                                        <i class="bi bi-bell-slash text-muted"></i>
+                                        <p class="text-muted mb-0">No notifications</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        
+                        <!-- User Profile -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar me-2">
+                                    {% if user.first_name and user.last_name %}
+                                        {{ user.first_name.0 }}{{ user.last_name.0 }}
+                                    {% elif user.first_name %}
+                                        {{ user.first_name.0 }}
+                                    {% else %}
+                                        {{ user.username.0 }}
+                                    {% endif %}
+                                </div>
+                                <span>{{ user.get_full_name|default:user.username }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li class="dropdown-header">
+                                    <strong>{{ user.get_full_name|default:user.username }}</strong><br>
+                                    <small class="text-muted">{{ user.get_user_type_display }}</small>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="bi bi-person"></i> Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="{% url 'settings' %}">
+                                    <i class="bi bi-gear"></i> Settings
+                                </a></li>
+                                {% if user.user_type in 'admin_l1,admin_l2,admin_l3' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/admin/">
+                                        <i class="bi bi-shield-lock"></i> Admin Panel
+                                    </a></li>
+                                {% endif %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="bi bi-box-arrow-right"></i> Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'cp_registration' %}">
+                                <i class="bi bi-person-plus"></i> Register
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container-fluid mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    {% block content %}
+    {% endblock %}
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load static files -->
+    {% load static %}
+    
+    <!-- Notifications JS -->
+    <script src="{% static 'js/notifications.js' %}"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Confirm delete actions
+        document.addEventListener('DOMContentLoaded', function() {
+            var deleteButtons = document.querySelectorAll('[data-confirm-delete]');
+            deleteButtons.forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to delete this item?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+            
+            // Load notifications
+            loadNotifications();
+            
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+        });
+        
+        function loadNotifications() {
+            {% if user.is_authenticated %}
+            fetch('/api/notifications/')
+                .then(response => response.json())
+                .then(data => {
+                    updateNotificationUI(data);
+                })
+                .catch(error => console.error('Error loading notifications:', error));
+            {% endif %}
+        }
+        
+        function updateNotificationUI(data) {
+            const countElement = document.getElementById('notificationCount');
+            const listElement = document.getElementById('notificationList');
+            
+            if (data.unread_count > 0) {
+                countElement.textContent = data.unread_count;
+                countElement.style.display = 'flex';
+            } else {
+                countElement.style.display = 'none';
+            }
+            
+            if (data.notifications.length > 0) {
+                listElement.innerHTML = data.notifications.map(notification => `
+                    <div class="notification-item ${notification.is_read ? '' : 'unread'}" data-notification-id="${notification.id}" onclick="markAsRead(${notification.id})">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-truncate">${notification.title}</strong>
+                            <small class="text-muted">${new Date(notification.created_at).toLocaleDateString()}</small>
+                        </div>
+                        <p class="mb-1 small text-muted">${notification.message}</p>
+                        ${notification.action_url ? `<a href="${notification.action_url}" class="btn btn-sm btn-outline-primary">${notification.action_text || 'View'}</a>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                listElement.innerHTML = `
+                    <div class="text-center p-3">
+                        <i class="bi bi-bell-slash text-muted"></i>
+                        <p class="text-muted mb-0">No notifications</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function markAsRead(notificationId) {
+            fetch(`/api/notification/${notificationId}/read/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+        
+        function markAllAsRead() {
+            fetch('/notifications/mark-read/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadNotifications();
+                }
+            })
+            .catch(error => console.error('Error marking all notifications as read:', error));
+        }
+    </script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

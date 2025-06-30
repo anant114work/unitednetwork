@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Bookings - United Network CRM{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Bookings Management</h2>
+                    <p class="text-muted">Manage and track all booking requests</p>
+                </div>
+                <div>
+                    <a href="{% url 'create_booking' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Booking
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                {% for status_code, status_name in status_choices %}
+                                    <option value="{{ status_code }}" {% if search_params.status == status_code %}selected{% endif %}>
+                                        {{ status_name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Project</label>
+                            <select name="project" class="form-select">
+                                <option value="">All Projects</option>
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}" {% if search_params.project == project.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ project.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% if user.user_type in 'admin_l1,admin_l2,admin_l3,rm,team_head,team_leader,branch' %}
+                            <div class="col-md-3">
+                                <label class="form-label">Channel Partner</label>
+                                <select name="cp" class="form-select">
+                                    <option value="">All CPs</option>
+                                    {% for cp in cps %}
+                                        <option value="{{ cp.id }}" {% if search_params.cp == cp.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ cp.cp_code }} - {{ cp.company_name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        {% endif %}
+                        <div class="col-md-3">
+                            <label class="form-label">Search</label>
+                            <input type="text" name="search" class="form-control" placeholder="Booking ID, Customer..." value="{{ search_params.search }}">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-2"></i>Filter
+                            </button>
+                            <a href="{% url 'bookings_list' %}" class="btn btn-outline-secondary ms-2">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Project</th>
+                                    {% if show_customer_details %}
+                                        <th>Customer</th>
+                                    {% endif %}
+                                    <th>CP Code</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ booking.booking_id }}</strong>
+                                        </td>
+                                        <td>{{ booking.project.name|truncatechars:30 }}</td>
+                                        {% if show_customer_details %}
+                                            <td>
+                                                <div>{{ booking.customer_name }}</div>
+                                                <small class="text-muted">{{ booking.customer_phone }}</small>
+                                            </td>
+                                        {% endif %}
+                                        <td>{{ booking.cp.cp_code }}</td>
+                                        <td>{{ booking.total_amount|currency }}</td>
+                                        <td>
+                                            <span class="badge {{ booking.status|badge_class }}">
+                                                {{ booking.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td>{{ booking.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{% url 'booking_detail' booking.id %}" class="btn btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                {% if user.user_type in 'admin_l1,admin_l2,admin_l3' and booking.status == 'requested' %}
+                                                    <form method="post" action="{% url 'approve_booking' booking.id %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-outline-success" onclick="return confirm('Approve this booking?')">
+                                                            <i class="bi bi-check-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <i class="bi bi-inbox display-4 text-muted"></i>
+                                            <p class="text-muted mt-2">No bookings found</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if bookings.has_other_pages %}
+                        <nav aria-label="Bookings pagination" class="mt-4">
+                            <ul class="pagination justify-content-center">
+                                {% if bookings.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ bookings.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for num in bookings.paginator.page_range %}
+                                    {% if bookings.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% elif num > bookings.number|add:'-3' and num < bookings.number|add:'3' %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if bookings.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?{{ request.GET.urlencode }}&page={{ bookings.next_page_number }}">Next</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

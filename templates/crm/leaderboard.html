@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Performance Leaderboard - United Network CRM{% endblock %}
+
+{% block extra_css %}
+<style>
+    .leaderboard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 0;
+    }
+    
+    .rank-badge {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+    .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); color: white; }
+    .rank-3 { background: linear-gradient(135deg, #CD7F32, #B8860B); color: white; }
+    .rank-other { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    
+    .performance-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .performance-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .top-performer {
+        border-left: 5px solid #FFD700;
+    }
+    
+    .filter-card {
+        background: rgba(255,255,255,0.95);
+        backdrop-filter: blur(10px);
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="leaderboard-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-3">
+                    <i class="bi bi-trophy me-3"></i>Performance Leaderboard
+                </h1>
+                <p class="lead mb-0">Top performing channel partners - {{ user_role }}</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-warning fs-6">Internal Use Only</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Filters -->
+    <div class="card filter-card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Time Period</label>
+                    <select name="period" class="form-select">
+                        {% for value, label in period_choices %}
+                            <option value="{{ value }}" {% if period == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Metric</label>
+                    <select name="metric" class="form-select">
+                        {% for value, label in metric_choices %}
+                            <option value="{{ value }}" {% if metric == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card performance-card text-center">
+                <div class="card-body">
+                    <i class="bi bi-people display-4 text-primary mb-3"></i>
+                    <h3 class="text-primary">{{ total_cps }}</h3>
+                    <p class="text-muted mb-0">Total Channel Partners</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card performance-card text-center">
+                <div class="card-body">
+                    <i class="bi bi-graph-up display-4 text-success mb-3"></i>
+                    <h3 class="text-success">{{ active_cps }}</h3>
+                    <p class="text-muted mb-0">Active Performers</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card performance-card text-center">
+                <div class="card-body">
+                    <i class="bi bi-trophy display-4 text-warning mb-3"></i>
+                    <h3 class="text-warning">{{ period|title }}</h3>
+                    <p class="text-muted mb-0">Current Period</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Leaderboard -->
+    {% if top_cps %}
+        <div class="card performance-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-award me-2"></i>Top Performing Channel Partners
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">Rank</th>
+                                <th>Channel Partner</th>
+                                <th>Company</th>
+                                <th class="text-center">Bookings</th>
+                                <th class="text-end">Total Sales</th>
+                                <th class="text-end">Commission</th>
+                                <th class="text-end">Avg. Booking</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cp in top_cps %}
+                                <tr {% if forloop.counter <= 3 %}class="top-performer"{% endif %}>
+                                    <td class="text-center">
+                                        <div class="rank-badge 
+                                            {% if forloop.counter == 1 %}rank-1
+                                            {% elif forloop.counter == 2 %}rank-2
+                                            {% elif forloop.counter == 3 %}rank-3
+                                            {% else %}rank-other{% endif %}">
+                                            {{ forloop.counter }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            <strong>{{ cp.cp_code }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ cp.full_name }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ cp.company_name|truncatechars:30 }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ cp.total_bookings }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong class="text-success">₹{{ cp.total_amount|floatformat:0 }}</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <strong class="text-primary">₹{{ cp.total_commission|floatformat:0 }}</strong>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="text-muted">₹{{ cp.avg_booking_value|floatformat:0 }}</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top 3 Highlight -->
+        {% if top_cps|length >= 3 %}
+            <div class="row g-4 mt-4">
+                {% for cp in top_cps|slice:":3" %}
+                    <div class="col-md-4">
+                        <div class="card performance-card text-center">
+                            <div class="card-body">
+                                <div class="rank-badge 
+                                    {% if forloop.counter == 1 %}rank-1
+                                    {% elif forloop.counter == 2 %}rank-2
+                                    {% else %}rank-3{% endif %} mx-auto mb-3">
+                                    {{ forloop.counter }}
+                                </div>
+                                <h5 class="card-title">{{ cp.cp_code }}</h5>
+                                <p class="text-muted">{{ cp.full_name }}</p>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <h6 class="text-primary">{{ cp.total_bookings }}</h6>
+                                        <small class="text-muted">Bookings</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <h6 class="text-success">₹{{ cp.total_amount|floatformat:0 }}</h6>
+                                        <small class="text-muted">Sales</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="card performance-card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-trophy display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No Performance Data</h4>
+                <p class="text-muted">No channel partners have bookings for the selected period.</p>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
