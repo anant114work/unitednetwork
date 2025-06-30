@@ -49,45 +49,43 @@ class EduMarcSMSService:
             
             message = f"Your verification code is : {otp}\n\nRegards\nBOP REALTY"
             
-            # Debug what's triggering test mode
-            debug_val = getattr(settings, 'DEBUG', False)
-            sms_test_val = self.is_restricted_env
-            env_debug = os.environ.get('DEBUG', 'not_set')
-            env_sms_test = os.environ.get('SMS_TEST_MODE', 'not_set')
-            
-            logger.info(f"Debug values - DEBUG: {debug_val}, SMS_TEST_MODE: {sms_test_val}, ENV_DEBUG: {env_debug}, ENV_SMS_TEST: {env_sms_test}")
-            
-            if (formatted_number in ['9999999999', '8888888888', '7777777777'] or 
-                self.is_restricted_env or 
-                getattr(settings, 'DEBUG', False)):
+            # Only use test mode for specific test numbers
+            if formatted_number in ['9999999999', '8888888888', '7777777777']:
                 logger.info(f"Test mode - OTP: {otp} for {formatted_number}")
                 return True, otp
             
+            # Force real SMS for all other numbers
+            logger.info(f"Attempting real SMS for {formatted_number}")
+            
+            # Always try real SMS API
+            payload = {
+                "number": [formatted_number],
+                "message": message,
+                "senderId": self.sender_id,
+                "templateId": self.templates['otp']
+            }
+            
+            headers = {
+                'Content-Type': 'application/json',
+                'apikey': self.api_key
+            }
+            
+            logger.info(f"Sending SMS API request to {self.api_url} for {formatted_number}")
+            
             try:
-                payload = {
-                    "number": [formatted_number],
-                    "message": message,
-                    "senderId": self.sender_id,
-                    "templateId": self.templates['otp']
-                }
-                
-                headers = {
-                    'Content-Type': 'application/json',
-                    'apikey': self.api_key
-                }
-                
-                response = requests.post(self.api_url, json=payload, headers=headers, timeout=10)
+                response = requests.post(self.api_url, json=payload, headers=headers, timeout=30)
+                logger.info(f"SMS API Response: {response.status_code} - {response.text}")
                 
                 if response.status_code == 200:
-                    logger.info(f"OTP sent successfully to {formatted_number}")
+                    logger.info(f"Real SMS sent successfully to {formatted_number}")
                     return True, otp
                 else:
-                    logger.warning(f"SMS API failed - using test mode, OTP: {otp}")
-                    return True, otp
+                    logger.error(f"SMS API failed with status {response.status_code}: {response.text}")
+                    return True, otp  # Still return success for user experience
                     
             except Exception as e:
-                logger.warning(f"SMS failed - using test mode for {formatted_number}, OTP: {otp}")
-                return True, otp
+                logger.error(f"SMS API exception: {str(e)}")
+                return True, otp  # Still return success for user experience
                 
         except Exception as e:
             logger.error(f"Error sending OTP to {phone_number}: {str(e)}")
