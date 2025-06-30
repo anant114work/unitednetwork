@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: united-network-crm
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn united_network_crm.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: SMS_TEST_MODE
+        value: True
