@@ -24,57 +24,56 @@
                 <!-- Stats Cards -->
                 <div class="row g-4 mb-4">
                     <div class="col-md-3">
-                        <div class="card bg-primary text-white">
+                        <div class="card text-dark" style="background: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 100%);">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h4>{{ total_bookings }}</h4>
-                                        <p class="mb-0">Total Bookings</p>
-                                        <!-- <small class="text-light">This month: {{ this_month_bookings }}</small> -->
+                                        <h4 class="text-dark">{{ total_bookings }}</h4>
+                                        <p class="mb-0 text-dark">Total Bookings</p>
                                     </div>
-                                    <i class="bi bi-clipboard-check display-6"></i>
+                                    <i class="bi bi-clipboard-check display-6 text-dark"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-3">
-                        <div class="card bg-success text-white">
+                        <div class="card text-white" style="background: linear-gradient(135deg, #8b5a3c 0%, #6d4428 100%);">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h4>₹{{ this_month_sales|floatformat:0 }}</h4>
-                                        <p class="mb-0">This Month Sales</p>
+                                        <h4 class="text-white">₹{{ this_month_sales|floatformat:0 }}</h4>
+                                        <p class="mb-0 text-white">This Month Sales</p>
                                     </div>
-                                    <i class="bi bi-currency-rupee display-6"></i>
+                                    <i class="bi bi-currency-rupee display-6 text-white"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-3">
-                        <div class="card bg-warning text-white">
+                        <div class="card text-dark" style="background: linear-gradient(135deg, #ffb3ba 0%, #ff9aa2 100%);">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h4>{{ pending_bookings }}</h4>
-                                        <p class="mb-0">Pending Approval</p>
+                                        <h4 class="text-dark">{{ pending_bookings }}</h4>
+                                        <p class="mb-0 text-dark">Pending Approval</p>
                                     </div>
-                                    <i class="bi bi-clock display-6"></i>
+                                    <i class="bi bi-clock display-6 text-dark"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="col-md-3">
-                        <div class="card bg-info text-white">
+                        <div class="card text-dark" style="background: linear-gradient(135deg, #f5f5dc 0%, #e6e6d0 100%);">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">
                                     <div>
-                                        <h4>₹{{ commission_due|floatformat:0 }}</h4>
-                                        <p class="mb-0">Commission Due</p>
+                                        <h4 class="text-dark">₹{{ commission_due|floatformat:0 }}</h4>
+                                        <p class="mb-0 text-dark">Commission Due</p>
                                     </div>
-                                    <i class="bi bi-wallet display-6"></i>
+                                    <i class="bi bi-wallet display-6 text-dark"></i>
                                 </div>
                             </div>
                         </div>
@@ -248,3 +247,4 @@
     </div>
 </div>
 {% endblock %}
+
